@@ -12,16 +12,17 @@ export interface PokemonType {
 function App() {
   const [pokemons, setPokemons] = useState<PokemonType[]>([]);
   const [nextUrl, setNextUrl] = useState<string>("");
+  const [prevUrl, setPrevUrl] = useState<string>("");
 
   const getPokemonsList = async (
     url: string = "https://pokeapi.co/api/v2/pokemon"
   ) => {
     const response = await fetch(url);
     const data = await response.json();
-    console.log(data);
 
     setPokemons(data.results);
     setNextUrl(data.next);
+    setPrevUrl(data.previous);
   };
 
   useEffect(() => {
@@ -37,6 +38,7 @@ function App() {
             <PokemonList
               pokemons={pokemons}
               nextUrl={nextUrl}
+              prevUrl={prevUrl}
               getPokemonsList={getPokemonsList}
             />
           }
