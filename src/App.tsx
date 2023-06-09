@@ -11,23 +11,49 @@ export interface PokemonType {
 
 function App() {
   const [pokemons, setPokemons] = useState<PokemonType[]>([]);
-  const [nextUrl, setNextUrl] = useState<string>("");
-  const [prevUrl, setPrevUrl] = useState<string>("");
+  const [isloading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<any>(null);
+  const [page, setPage] = useState<number>(100);
 
   const getPokemonsList = async (
-    url: string = "https://pokeapi.co/api/v2/pokemon"
+    url: string = `https://pokeapi.co/api/v2/pokemon/?limit=${page}`
   ) => {
-    const response = await fetch(url);
-    const data = await response.json();
+    setIsLoading(true);
+    setError(null);
 
-    setPokemons(data.results);
-    setNextUrl(data.next);
-    setPrevUrl(data.previous);
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+
+      setPokemons((prev) => [...prev, ...data.results]);
+      setPage((prev) => prev + 100);
+    } catch (error) {
+      setError(error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {
     getPokemonsList();
   }, []);
+
+  const handleScroll = () => {
+    if (
+      window.innerHeight + document.documentElement.scrollTop !==
+        document.documentElement.offsetHeight ||
+      isloading
+    ) {
+      return;
+    }
+
+    getPokemonsList();
+  };
+
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [isloading]);
 
   return (
     <BrowserRouter>
@@ -37,9 +63,8 @@ function App() {
           element={
             <PokemonList
               pokemons={pokemons}
-              nextUrl={nextUrl}
-              prevUrl={prevUrl}
-              getPokemonsList={getPokemonsList}
+              isLoading={isloading}
+              error={error}
             />
           }
         />
