@@ -1,18 +1,20 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
+import PokemonList from "./components/screen/PokemonList";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Pokemon from "./pages/Pokemon";
 
-export interface pokemonType {
+export interface PokemonType {
   name: string;
   url: string;
 }
 
 function App() {
-  const [pokemons, setPokemons] = useState<pokemonType[]>([]);
+  const [pokemons, setPokemons] = useState<PokemonType[]>([]);
 
   useEffect(() => {
     const getPokemonsList = async () => {
       const response = await fetch("https://pokeapi.co/api/v2/pokemon");
       const data = await response.json();
-      console.log(data.results);
 
       setPokemons(data.results);
     };
@@ -21,14 +23,12 @@ function App() {
   }, []);
 
   return (
-    <div className="w-screen h-screen flex justify-center items-center">
-      <h1 className="text-red-500 font-bold">Hello World</h1>
-      <ul>
-        {pokemons.map((pokemon) => (
-          <li key={pokemon.name}>{pokemon.name}</li>
-        ))}
-      </ul>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route index element={<PokemonList pokemons={pokemons} />} />
+        <Route path={"/pokemon"} element={<Pokemon />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
