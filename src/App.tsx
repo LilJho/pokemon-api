@@ -39,21 +39,18 @@ function App() {
   }, []);
 
   const handleScroll = () => {
-    if (
-      window.innerHeight + document.documentElement.scrollTop !==
-        document.documentElement.offsetHeight ||
-      isloading
-    ) {
-      return;
-    }
+    const isAtBottom =
+      window.innerHeight + window.scrollY >= document.body.offsetHeight;
 
-    getPokemonsList();
+    if (isAtBottom && !isloading) {
+      getPokemonsList();
+    }
   };
 
   useEffect(() => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [isloading]);
+  }, []);
 
   return (
     <BrowserRouter>
