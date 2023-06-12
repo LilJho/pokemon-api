@@ -13,10 +13,11 @@ function App() {
   const [pokemons, setPokemons] = useState<PokemonType[]>([]);
   const [isloading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<any>(null);
-  const [page, setPage] = useState<number>(100);
+  const [limit, setLimit] = useState<number>(0);
+  const [offset, setOffset] = useState<number>(0);
 
   const getPokemonsList = async (
-    url: string = `https://pokeapi.co/api/v2/pokemon/?limit=${page}`
+    url: string = `https://pokeapi.co/api/v2/pokemon/?limit=100&offset=${offset}`
   ) => {
     setIsLoading(true);
     setError(null);
@@ -25,8 +26,8 @@ function App() {
       const response = await fetch(url);
       const data = await response.json();
 
+      setLimit((prev) => prev + data.count);
       setPokemons((prev) => [...prev, ...data.results]);
-      setPage((prev) => prev + 100);
     } catch (error) {
       setError(error);
     } finally {
@@ -36,14 +37,14 @@ function App() {
 
   useEffect(() => {
     getPokemonsList();
-  }, []);
+  }, [offset]);
 
   const handleScroll = () => {
     const isAtBottom =
       window.innerHeight + window.scrollY >= document.body.offsetHeight;
 
     if (isAtBottom && !isloading) {
-      getPokemonsList();
+      setOffset((prev) => prev + 100);
     }
   };
 
